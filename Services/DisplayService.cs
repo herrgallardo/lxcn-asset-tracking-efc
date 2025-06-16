@@ -4,12 +4,13 @@ namespace lxcn_asset_tracking_efc.Services
 {
     /// <summary>
     /// Service for displaying assets in the console with color coding and formatting
-    /// Matches the original implementation's display functionality
+    /// Updated to show both local price and USD equivalent like the original GitHub implementation
     /// </summary>
     public class DisplayService
     {
         /// <summary>
         /// Displays assets sorted by office location and purchase date with color coding
+        /// Shows both local price and USD equivalent
         /// RED: Assets within 3 months of end-of-life
         /// YELLOW: Assets within 6 months of end-of-life
         /// </summary>
@@ -23,9 +24,9 @@ namespace lxcn_asset_tracking_efc.Services
             }
 
             Console.WriteLine("\nAsset Inventory:");
-            Console.WriteLine(new string('-', 160));
-            Console.WriteLine($"{"ID",-4} | {"Type",-12} | {"Brand",-12} | {"Model",-25} | {"Office",-10} | {"Purchase Date",-15} | {"Local Price",-15} | {"End of Life",-15}");
-            Console.WriteLine(new string('-', 160));
+            Console.WriteLine(new string('-', 170));
+            Console.WriteLine($"{"ID",-4} | {"Type",-12} | {"Brand",-12} | {"Model",-25} | {"Office",-10} | {"Purchase Date",-15} | {"Local Price",-15} | {"USD Value",-13} | {"End of Life",-15}");
+            Console.WriteLine(new string('-', 170));
 
             string previousOffice = "";
             int assetsNearEndOfLife3Months = 0;
@@ -55,17 +56,20 @@ namespace lxcn_asset_tracking_efc.Services
                 // Truncate model name if it's too long to maintain alignment
                 var modelDisplay = asset.Model.Length > 25 ? asset.Model.Substring(0, 22) + "..." : asset.Model;
 
-                // Display asset information including ID
+                // Calculate USD value
+                decimal usdValue = asset.PurchasePrice.ToUSD();
+
+                // Display asset information including both local price and USD equivalent
                 var endOfLifeDate = asset.TimeUntilEndOfLife().Days > 0 ?
                     asset.PurchaseDate.AddYears(3).ToShortDateString() : "EXPIRED";
 
-                Console.WriteLine($"{asset.Id,-4} | {asset.AssetType,-12} | {asset.Brand,-12} | {modelDisplay,-25} | {asset.OfficeLocation,-10} | {asset.PurchaseDate.ToShortDateString(),-15} | {asset.PurchasePrice.ToString(),-15} | {endOfLifeDate,-15}");
+                Console.WriteLine($"{asset.Id,-4} | {asset.AssetType,-12} | {asset.Brand,-12} | {modelDisplay,-25} | {asset.OfficeLocation,-10} | {asset.PurchaseDate.ToShortDateString(),-15} | {asset.PurchasePrice.ToString(),-15} | ${usdValue,-12:N2} | {endOfLifeDate,-15}");
 
                 // Reset color
                 Console.ResetColor();
             }
 
-            Console.WriteLine(new string('-', 160));
+            Console.WriteLine(new string('-', 170));
             DisplaySummaryStatistics(assets, assetsNearEndOfLife3Months, assetsNearEndOfLife6Months);
         }
 
@@ -97,6 +101,10 @@ namespace lxcn_asset_tracking_efc.Services
             {
                 Console.WriteLine($"  {group.Office}: {group.Count}");
             }
+
+            // Total value calculations
+            var totalUsdValue = assets.Sum(a => a.PurchasePrice.ToUSD());
+            Console.WriteLine($"\nTotal USD Value: ${totalUsdValue:N2}");
         }
 
         /// <summary>

@@ -1,9 +1,11 @@
 using System.ComponentModel.DataAnnotations;
+using lxcn_asset_tracking_efc.Services;
 
 namespace lxcn_asset_tracking_efc.Models
 {
     /// <summary>
-    /// Price class to handle currency and value as in the original implementation
+    /// Price class to handle currency and value with conversion capabilities
+    /// Matches the original GitHub implementation with ToUSD functionality
     /// </summary>
     public class Price
     {
@@ -39,6 +41,32 @@ namespace lxcn_asset_tracking_efc.Models
         /// </summary>
         public Price()
         {
+        }
+
+        /// <summary>
+        /// Convert price to USD using CurrencyConverter service
+        /// Matches the original GitHub implementation functionality
+        /// </summary>
+        /// <returns>Price converted to USD</returns>
+        public decimal ToUSD()
+        {
+            if (Currency == Currency.USD)
+                return Value;
+
+            string fromCurrencyStr = Currency.ToString();
+
+            if (CurrencyConverter.ConvertTo(Value, fromCurrencyStr, "USD", out decimal convertedValue))
+                return convertedValue;
+
+            // Fallback to approximate rates if conversion fails
+            decimal fallbackRate = Currency switch
+            {
+                Currency.EUR => 1.1m,     // Approximate EUR to USD rate
+                Currency.SEK => 0.095m,   // Approximate SEK to USD rate
+                _ => 1.0m
+            };
+
+            return Value * fallbackRate;
         }
 
         /// <summary>

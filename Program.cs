@@ -7,7 +7,7 @@ namespace lxcn_asset_tracking_efc
 {
     /// <summary>
     /// Main program class for the Asset Tracking application
-    /// Provides console-based interface for managing company assets
+    /// Enhanced with currency conversion functionality matching the original GitHub implementation
     /// </summary>
     class Program
     {
@@ -31,6 +31,9 @@ namespace lxcn_asset_tracking_efc
                 return;
             }
 
+            // Initialize currency converter like in the original implementation
+            await InitializeCurrencyConverterAsync();
+
             // Ask user if they want to add sample data
             Console.Write("\nWould you like to add sample data for testing? (y/n): ");
             var addSampleData = Console.ReadLine()?.Trim().ToLower();
@@ -41,6 +44,38 @@ namespace lxcn_asset_tracking_efc
             }
 
             await RunApplicationAsync();
+        }
+
+        /// <summary>
+        /// Initializes the currency converter with live exchange rates
+        /// </summary>
+        private static async Task InitializeCurrencyConverterAsync()
+        {
+            Console.WriteLine("Initializing currency converter...");
+
+            try
+            {
+                // Initialize currency converter with error suppression
+                var updateSuccess = await Task.Run(() => CurrencyConverter.Update(true));
+
+                if (updateSuccess && CurrencyConverter.HasValidRates())
+                {
+                    Console.WriteLine("Currency rates updated successfully from European Central Bank.");
+                    Console.WriteLine($"Last updated: {CurrencyConverter.GetLastUpdateTime():yyyy-MM-dd HH:mm}");
+                }
+                else
+                {
+                    Console.WriteLine("Warning: Using fallback currency rates.");
+                    Console.WriteLine("Exchange rates from ECB unavailable - using approximate rates:");
+                    Console.WriteLine("1 EUR = 1.10 USD");
+                    Console.WriteLine("1 EUR = 10.50 SEK");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Warning: Could not update currency rates: {ex.Message}");
+                Console.WriteLine("Will use default conversion rates.");
+            }
         }
 
         /// <summary>
@@ -182,6 +217,7 @@ namespace lxcn_asset_tracking_efc
             Console.WriteLine($"Model: {asset.Model}");
             Console.WriteLine($"Purchase Date: {asset.PurchaseDate.ToShortDateString()}");
             Console.WriteLine($"Price: {asset.PurchasePrice}");
+            Console.WriteLine($"USD Equivalent: ${asset.PurchasePrice.ToUSD():N2}");
             Console.WriteLine($"Office: {asset.OfficeLocation}");
 
             if (_inputService.GetConfirmation("\nConfirm adding this asset?"))
@@ -295,6 +331,7 @@ namespace lxcn_asset_tracking_efc
             Console.WriteLine($"Type: {asset.AssetType}");
             Console.WriteLine($"Brand: {asset.Brand}");
             Console.WriteLine($"Model: {asset.Model}");
+            Console.WriteLine($"Value: {asset.PurchasePrice} (${asset.PurchasePrice.ToUSD():N2} USD)");
 
             if (_inputService.GetConfirmation("Are you sure you want to delete this asset?"))
             {
@@ -350,6 +387,10 @@ namespace lxcn_asset_tracking_efc
             Console.WriteLine("\nEnd of Life Analysis:");
             Console.WriteLine($"Assets near end of life (< 3 months): {nearEndOfLife}");
             Console.WriteLine($"Assets approaching end of life (3-6 months): {approachingEndOfLife}");
+
+            // Total value calculations
+            var totalUsdValue = assets.Sum(a => a.PurchasePrice.ToUSD());
+            Console.WriteLine($"\nTotal Portfolio Value: ${totalUsdValue:N2} USD");
 
             _inputService!.PauseForUser();
         }
