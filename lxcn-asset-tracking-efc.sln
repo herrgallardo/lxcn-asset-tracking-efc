@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "lxcn-asset-tracking-efc", "lxcn-asset-tracking-efc.csproj", "{20C1186D-9BA9-4882-A73E-D0D64B79C331}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{20C1186D-9BA9-4882-A73E-D0D64B79C331}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{20C1186D-9BA9-4882-A73E-D0D64B79C331}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{20C1186D-9BA9-4882-A73E-D0D64B79C331}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{20C1186D-9BA9-4882-A73E-D0D64B79C331}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1D237D72-2B49-41FF-A79F-82F42237FBFB}
+	EndGlobalSection
+EndGlobal
