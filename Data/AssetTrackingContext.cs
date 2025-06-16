@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using lxcn_asset_tracking_efc.Models;
+using lxcn_asset_tracking_efc.Services;
 
 namespace lxcn_asset_tracking_efc.Data
 {
@@ -14,6 +15,13 @@ namespace lxcn_asset_tracking_efc.Data
         /// </summary>
         /// <param name="options">Database context configuration options</param>
         public AssetTrackingContext(DbContextOptions<AssetTrackingContext> options) : base(options)
+        {
+        }
+
+        /// <summary>
+        /// Parameterless constructor for design-time operations (migrations)
+        /// </summary>
+        public AssetTrackingContext()
         {
         }
 
@@ -38,6 +46,28 @@ namespace lxcn_asset_tracking_efc.Data
         public DbSet<Price> Prices { get; set; }
 
         /// <summary>
+        /// Configures the database connection for design-time operations
+        /// </summary>
+        /// <param name="optionsBuilder">Options builder for configuring the context</param>
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+                try
+                {
+                    var configService = new ConfigurationService();
+                    var connectionString = configService.GetConnectionString();
+                    optionsBuilder.UseSqlServer(connectionString);
+                }
+                catch
+                {
+                    // Fallback for design-time when appsettings.json might not be available
+                    optionsBuilder.UseSqlServer("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=AssetTracking;Integrated Security=True");
+                }
+            }
+        }
+
+        /// <summary>
         /// Configures the model relationships and database schema
         /// </summary>
         /// <param name="modelBuilder">The model builder instance</param>
@@ -46,9 +76,9 @@ namespace lxcn_asset_tracking_efc.Data
             base.OnModelCreating(modelBuilder);
 
             // Configure Asset hierarchy using Table-Per-Hierarchy (TPH) strategy
-            // This creates a single table for both Computer and Phone with a discriminator column
+            // EF Core will automatically create a discriminator column called "Discriminator"
             modelBuilder.Entity<Asset>()
-                .HasDiscriminator<string>("AssetType")
+                .HasDiscriminator<string>("Discriminator")
                 .HasValue<Computer>("Computer")
                 .HasValue<Phone>("Phone");
 

@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace lxcn_asset_tracking_efc.Models
 {
@@ -49,7 +50,9 @@ namespace lxcn_asset_tracking_efc.Models
 
         /// <summary>
         /// Abstract property to be implemented by derived classes
+        /// This property is not mapped to database - used only for business logic
         /// </summary>
+        [NotMapped]
         public abstract string AssetType { get; }
 
         /// <summary>
