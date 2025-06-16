@@ -31,6 +31,15 @@ namespace lxcn_asset_tracking_efc
                 return;
             }
 
+            // Ask user if they want to add sample data
+            Console.Write("\nWould you like to add sample data for testing? (y/n): ");
+            var addSampleData = Console.ReadLine()?.Trim().ToLower();
+
+            if (addSampleData == "y" || addSampleData == "yes")
+            {
+                await AddSampleDataAsync();
+            }
+
             await RunApplicationAsync();
         }
 
@@ -72,6 +81,27 @@ namespace lxcn_asset_tracking_efc
                 Console.WriteLine("\nPlease check your database connection string in appsettings.json");
                 return false;
             }
+        }
+
+        /// <summary>
+        /// Adds sample data to the database for testing purposes
+        /// </summary>
+        private static async Task AddSampleDataAsync()
+        {
+            var sampleDataService = new SampleDataService(_assetManager!);
+            await sampleDataService.AddSampleDataAsync();
+
+            Console.Write("Would you also like to add end-of-life test data? (y/n): ");
+            var addTestData = Console.ReadLine()?.Trim().ToLower();
+
+            if (addTestData == "y" || addTestData == "yes")
+            {
+                await sampleDataService.AddEndOfLifeTestDataAsync();
+            }
+
+            Console.WriteLine("Sample data setup complete!");
+            Console.WriteLine("Press any key to continue to the main menu...");
+            Console.ReadKey();
         }
 
         /// <summary>
