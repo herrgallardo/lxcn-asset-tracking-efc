@@ -23,9 +23,9 @@ namespace lxcn_asset_tracking_efc.Services
             }
 
             Console.WriteLine("\nAsset Inventory:");
-            Console.WriteLine(new string('-', 130));
-            Console.WriteLine($"{"Type",-12} | {"Brand",-12} | {"Model",-18} | {"Office",-10} | {"Purchase Date",-15} | {"Local Price",-15} | {"End of Life",-15}");
-            Console.WriteLine(new string('-', 130));
+            Console.WriteLine(new string('-', 160));
+            Console.WriteLine($"{"ID",-4} | {"Type",-12} | {"Brand",-12} | {"Model",-25} | {"Office",-10} | {"Purchase Date",-15} | {"Local Price",-15} | {"End of Life",-15}");
+            Console.WriteLine(new string('-', 160));
 
             string previousOffice = "";
             int assetsNearEndOfLife3Months = 0;
@@ -52,17 +52,20 @@ namespace lxcn_asset_tracking_efc.Services
                     assetsNearEndOfLife6Months++;
                 }
 
-                // Display asset information
+                // Truncate model name if it's too long to maintain alignment
+                var modelDisplay = asset.Model.Length > 25 ? asset.Model.Substring(0, 22) + "..." : asset.Model;
+
+                // Display asset information including ID
                 var endOfLifeDate = asset.TimeUntilEndOfLife().Days > 0 ?
                     asset.PurchaseDate.AddYears(3).ToShortDateString() : "EXPIRED";
 
-                Console.WriteLine($"{asset.AssetType,-12} | {asset.Brand,-12} | {asset.Model,-18} | {asset.OfficeLocation,-10} | {asset.PurchaseDate.ToShortDateString(),-15} | {asset.PurchasePrice.ToString(),-15} | {endOfLifeDate,-15}");
+                Console.WriteLine($"{asset.Id,-4} | {asset.AssetType,-12} | {asset.Brand,-12} | {modelDisplay,-25} | {asset.OfficeLocation,-10} | {asset.PurchaseDate.ToShortDateString(),-15} | {asset.PurchasePrice.ToString(),-15} | {endOfLifeDate,-15}");
 
                 // Reset color
                 Console.ResetColor();
             }
 
-            Console.WriteLine(new string('-', 130));
+            Console.WriteLine(new string('-', 160));
             DisplaySummaryStatistics(assets, assetsNearEndOfLife3Months, assetsNearEndOfLife6Months);
         }
 
