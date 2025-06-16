@@ -6,8 +6,7 @@ using lxcn_asset_tracking_efc.Models;
 namespace lxcn_asset_tracking_efc
 {
     /// <summary>
-    /// Main program class for the Asset Tracking application
-    /// Enhanced with currency conversion functionality matching the original GitHub implementation
+    /// Main program class for the Asset Tracking application    
     /// </summary>
     class Program
     {
@@ -34,16 +33,42 @@ namespace lxcn_asset_tracking_efc
             // Initialize currency converter like in the original implementation
             await InitializeCurrencyConverterAsync();
 
-            // Ask user if they want to add sample data
-            Console.Write("\nWould you like to add sample data for testing? (y/n): ");
-            var addSampleData = Console.ReadLine()?.Trim().ToLower();
-
-            if (addSampleData == "y" || addSampleData == "yes")
-            {
-                await AddSampleDataAsync();
-            }
+            // Check if database is empty and offer sample data only if needed
+            await CheckAndOfferSampleDataAsync();
 
             await RunApplicationAsync();
+        }
+
+        /// <summary>
+        /// Checks if database is empty and offers sample data only if needed
+        /// </summary>
+        private static async Task CheckAndOfferSampleDataAsync()
+        {
+            try
+            {
+                var existingAssets = await _assetManager!.GetAllAssetsAsync();
+
+                if (existingAssets.Count == 0)
+                {
+                    Console.WriteLine("Database is empty.");
+                    Console.Write("Would you like to add sample data for testing? (y/n): ");
+                    var addSampleData = Console.ReadLine()?.Trim().ToLower();
+
+                    if (addSampleData == "y" || addSampleData == "yes")
+                    {
+                        await AddSampleDataAsync();
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"Database contains {existingAssets.Count} existing assets.");
+                    Console.WriteLine("Ready to use the Asset Tracking System!");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Warning: Could not check database contents: {ex.Message}");
+            }
         }
 
         /// <summary>
